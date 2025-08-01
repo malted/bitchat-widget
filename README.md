@@ -1,10 +1,10 @@
 # A little widget for [bitchat](https://github.com/permissionlesstech/bitchat)
 
-I wanted to know how many bitchat users are around me, all the time.
+I wanted to know how many bitchat users are around me, all the time...
 
 <img width="826" height="55" alt="Screenshot 2025-07-31 at 11 50 01 PM" src="https://github.com/user-attachments/assets/6724a2dc-ba68-417d-bed7-4c4353e6ddd9" />
 
-When I see someone online, I want to, you know, say hi. Or something.
+...so when I see someone online, I can, you know, say hi. Or something.
 
 <img width="150" height="160" alt="image" src="https://github.com/user-attachments/assets/818aab4f-268e-4851-80a0-ddb30e16f328" />
 
