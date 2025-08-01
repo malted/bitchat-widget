@@ -1,32 +1,9 @@
-use status_bar::{
-    Menu, MenuItem, StatusItem, async_infinite_event_loop, ns_alert, sync_infinite_event_loop,
-};
-use std::{os::unix::process::CommandExt, process::Command};
-use tokio::{spawn, time};
-
-static TARGET_PROCESS_NAME: &str = "bitchat";
-
-fn look_up_pid() -> Option<u32> {
-    let out = Command::new("pgrep")
-        .args(["-f", TARGET_PROCESS_NAME])
-        .output()
-        .ok()?
-        .stdout
-        .strip_suffix("\n".as_bytes())?
-        .to_vec();
-
-    let pid_str = std::str::from_utf8(&out).unwrap().trim();
-    pid_str.parse::<u32>().ok()
-}
-
-use accessibility::{
-    AXAttribute, AXUIElement, AXUIElementAttributes, TreeVisitor, TreeWalker, TreeWalkerFlow,
-};
-use core_foundation::{
-    array::CFArray, attributed_string::CFAttributedString, base::CFType, data::CFDataRef,
-    string::CFString,
-};
+use accessibility::{AXAttribute, AXUIElement, TreeVisitor, TreeWalker, TreeWalkerFlow};
+use core_foundation::{array::CFArray, string::CFString};
+use status_bar::{Menu, MenuItem, StatusItem, async_infinite_event_loop};
 use std::cell::Cell;
+use std::process::Command;
+use tokio::{spawn, time};
 
 struct PrintyBoi {
     peer_count: Cell<usize>,
@@ -46,14 +23,12 @@ impl TreeVisitor for PrintyBoi {
     fn enter_element(&self, element: &AXUIElement) -> TreeWalkerFlow {
         let re = regex::Regex::new(r"(?<count>\d+) connected (person|people)").unwrap();
 
-        // Print AXLabel if available
         if let Some(label) = element
             .attribute(&AXAttribute::new(&CFString::new("AXLabel")))
             .ok()
             .map(|t| t.downcast::<CFString>())
             .flatten()
         {
-            // println!("{}", label);
             let re = regex::Regex::new(r"(?<count>\d+) connected (person|people)").unwrap();
 
             if let Some(caps) = re.captures(&label.to_string()) {
@@ -61,24 +36,6 @@ impl TreeVisitor for PrintyBoi {
             }
         }
 
-        // Print AXTitle if available
-        // if let Ok(title) = element.attribute(&AXAttribute::new(&CFString::new("AXTitle"))) {
-        //     println!("{}|. AXTitle: {:?}", indent, title);
-        // }
-
-        // element.attribute_names().map(|names| {
-        //     names.iter().for_each(|name| {
-        //         if &*name == self.children.as_CFString()
-        //             || *name == CFString::new("AXLabel")
-        //             || *name == CFString::new("AXTitle")
-        //         {
-        //             if let Ok(value) = element.attribute(&AXAttribute::new(&name)) {
-        //                 println!("{:?}", value);
-        //             }
-        //         }
-        //     })
-        // });
-        // // Print other attributes, as in your original code
         if let Ok(names) = element.attribute_names() {
             for name in names.into_iter() {
                 if &*name == self.children.as_CFString()
@@ -102,9 +59,22 @@ impl TreeVisitor for PrintyBoi {
         TreeWalkerFlow::Continue
     }
 
-    fn exit_element(&self, _element: &AXUIElement) {
-        // self.level.replace(self.level.get() - 1);
-    }
+    fn exit_element(&self, _element: &AXUIElement) {}
+}
+
+static TARGET_PROCESS_NAME: &str = "bitchat";
+
+fn look_up_pid() -> Option<u32> {
+    let out = Command::new("pgrep")
+        .args(["-f", TARGET_PROCESS_NAME])
+        .output()
+        .ok()?
+        .stdout
+        .strip_suffix("\n".as_bytes())?
+        .to_vec();
+
+    let pid_str = std::str::from_utf8(&out).unwrap().trim();
+    pid_str.parse::<u32>().ok()
 }
 
 fn get_count() -> Option<usize> {
