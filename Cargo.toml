@@ -1,0 +1,11 @@
+[package]
+name = "bitchat-widget"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+accessibility = "0.2.0"
+core-foundation = "0.10.1"
+regex = "1.11.1"
+status_bar = { path = "src/status_bar" }
+tokio = { version = "1.47.0", features = ["full"] }
