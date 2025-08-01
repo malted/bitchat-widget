@@ -41,4 +41,4 @@ I wanted to know how many bitchat users are around me, all the time...
  sudo launchctl load /Library/LaunchDaemons/dev.malted.bitchat-widget.plist
  ```
 
-You'll need to grant `~/.cargo/bin/bitchat-widget` accessability permissions, because it accesses bitchat's UI element tree. Go to `System Settings > Privacy & Security > Accessability > +`, then `⌘⇧H` to go to `~`, then `⌘⇧.` to view dotfiles, then select `.cargo/bitchat-widget`.
+You'll need to grant `~/.cargo/bin/bitchat-widget` accessibility permissions, because it accesses bitchat's UI element tree. Go to `System Settings > Privacy & Security > Accessibility > +`, then press `⌘⇧H` to go to `~`, then `⌘⇧.` to view dotfiles, then select `.cargo/bitchat-widget`.
