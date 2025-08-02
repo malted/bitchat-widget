@@ -9,36 +9,36 @@ I wanted to know how many bitchat users are around me, all the time...
 <img width="150" height="160" alt="image" src="https://github.com/user-attachments/assets/818aab4f-268e-4851-80a0-ddb30e16f328" />
 
 
- ## Install
+## Install
 
- ```sh
- cargo install --git https://github.com/malted/bitchat-widget
+```sh
+cargo install --git https://github.com/malted/bitchat-widget
 
- sudo tee /Library/LaunchDaemons/dev.malted.bitchat-widget.plist <<EOF
- <?xml version="1.0" encoding="UTF-8"?>
- <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
- <plist version="1.0">
- <dict>
-     <key>Label</key>
-     <string>dev.malted.bitchat-widget</string>
+sudo tee /Library/LaunchDaemons/dev.malted.bitchat-widget.plist <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>dev.malted.bitchat-widget</string>
 
-     <key>ProgramArguments</key>
-     <array>
-         <string>$HOME/.cargo/bin/bitchat-widget</string>
-     </array>
+    <key>ProgramArguments</key>
+    <array>
+        <string>${HOME}/.cargo/bin/bitchat-widget</string>
+    </array>
 
-     <key>RunAtLoad</key>
-     <true/>
+    <key>RunAtLoad</key>
+    <true/>
 
-     <key>KeepAlive</key>
-     <true/>
- </dict>
- </plist>
- EOF
+    <key>KeepAlive</key>
+    <true/>
+</dict>
+</plist>
+EOF
 
- sudo chmod 644 /Library/LaunchDaemons/dev.malted.bitchat-widget.plist
+sudo chmod 644 /Library/LaunchDaemons/dev.malted.bitchat-widget.plist
 
- sudo launchctl load /Library/LaunchDaemons/dev.malted.bitchat-widget.plist
- ```
+sudo launchctl load /Library/LaunchDaemons/dev.malted.bitchat-widget.plist
+```
 
 You'll need to grant `~/.cargo/bin/bitchat-widget` accessibility permissions, because it accesses bitchat's UI element tree. Go to `System Settings > Privacy & Security > Accessibility > +`, then press `⌘⇧H` to go to `~`, then `⌘⇧.` to view dotfiles, then select `.cargo/bitchat-widget`.
