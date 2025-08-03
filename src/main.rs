@@ -8,6 +8,7 @@ use tokio::{spawn, time};
 struct PrintyBoi {
     peer_count: Cell<usize>,
     children: AXAttribute<CFArray<AXUIElement>>,
+    regex: regex::Regex,
 }
 
 impl PrintyBoi {
@@ -15,23 +16,20 @@ impl PrintyBoi {
         Self {
             peer_count: Cell::new(0),
             children: AXAttribute::children(),
+            regex: regex::Regex::new(r"(?<count>\d+) connected (person|people)").unwrap(),
         }
     }
 }
 
 impl TreeVisitor for PrintyBoi {
     fn enter_element(&self, element: &AXUIElement) -> TreeWalkerFlow {
-        let re = regex::Regex::new(r"(?<count>\d+) connected (person|people)").unwrap();
-
         if let Some(label) = element
             .attribute(&AXAttribute::new(&CFString::new("AXLabel")))
             .ok()
             .map(|t| t.downcast::<CFString>())
             .flatten()
         {
-            let re = regex::Regex::new(r"(?<count>\d+) connected (person|people)").unwrap();
-
-            if let Some(caps) = re.captures(&label.to_string()) {
+            if let Some(caps) = self.regex.captures(&label.to_string()) {
                 println!("The connected people count is: {}", &caps["count"]);
             }
         }
@@ -45,7 +43,7 @@ impl TreeVisitor for PrintyBoi {
                     continue;
                 }
                 if let Ok(value) = element.attribute(&AXAttribute::new(&name)) {
-                    if let Some(count) = re
+                    if let Some(count) = self.regex
                         .captures(&format!("{:?}", value))
                         .map(|r| r["count"].parse::<usize>().ok())
                         .flatten()
@@ -77,19 +75,17 @@ fn look_up_pid() -> Option<u32> {
     pid_str.parse::<u32>().ok()
 }
 
-fn get_count() -> Option<usize> {
+fn get_count(walker: &TreeWalker, printy: &PrintyBoi) -> Option<usize> {
     let pid = match look_up_pid() {
         Some(p) => p as i32,
         None => return None,
     };
 
     let app = AXUIElement::application(pid);
-    let printy = PrintyBoi::new();
-    let walker = TreeWalker::new();
+    printy.peer_count.replace(0);
+    walker.walk(&app, printy);
 
-    walker.walk(&app, &printy);
-
-    Some(printy.peer_count.into_inner())
+    Some(printy.peer_count.get())
 }
 
 #[tokio::main(flavor = "current_thread")]
@@ -108,8 +104,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         None,
     )]));
 
+    let printy = PrintyBoi::new();
+    let walker = TreeWalker::new();
+
     loop {
-        let peer_count = get_count();
+        let peer_count = get_count(&walker, &printy);
         let peer_count_msg = match peer_count {
             Some(count) => {
                 format!("{count} peer{}", if count != 1 { "s" } else { "" })
